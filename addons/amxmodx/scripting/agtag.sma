@@ -112,12 +112,14 @@ public TagPlayer(player)
 	g_isTagged[player] = true;
 	set_user_rendering(player, kRenderFxGlowShell, 255, 0, 0, kRenderNormal, get_pcvar_num(pcvar_agtag_glowamount));
 	GetColorlessName(player, taggedPlayerName, charsmax(taggedPlayerName));
+	client_cmd(player, "spk \"sound/tagged\"");
 }
 
 public UntagPlayer(player)
 {
 	g_isTagged[player] = false;
 	set_user_rendering(player); // reset rendering
+	client_cmd(0, "spk fvox/bell");
 }
 
 public TaskUnfreeze(taskId)
