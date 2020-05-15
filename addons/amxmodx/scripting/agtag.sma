@@ -111,15 +111,23 @@ public TagPlayer(player)
 {
 	g_isTagged[player] = true;
 	set_user_rendering(player, kRenderFxGlowShell, 255, 0, 0, kRenderNormal, get_pcvar_num(pcvar_agtag_glowamount));
+
 	GetColorlessName(player, taggedPlayerName, charsmax(taggedPlayerName));
+
+	client_print(player, print_chat, "[%s] You are tagged!", PLUGIN_TAG);
 	client_cmd(player, "spk \"sound/tagged\"");
+
+	FreezePlayer(player);
+	set_task(3.00, "TaskUnfreeze", player + TASKID_UNFREEZE_PLAYER);
 }
 
 public UntagPlayer(player)
 {
 	g_isTagged[player] = false;
 	set_user_rendering(player); // reset rendering
+
 	client_cmd(0, "spk fvox/bell");
+	client_print(player, print_chat, "[%s] You are no longer tagged!", PLUGIN_TAG);
 }
 
 public TaskUnfreeze(taskId)
@@ -161,12 +169,6 @@ public Fw_HamTakeDamagePlayer(victim, inflictor, aggressor, Float:damage, damage
 	{
 		TagPlayer(victim);
 		UntagPlayer(aggressor);
-
-		client_print(victim, print_chat, "[%s] You are tagged!", PLUGIN_TAG);
-		client_print(aggressor, print_chat, "[%s] You are no longer tagged!", PLUGIN_TAG);
-
-		FreezePlayer(victim);
-		set_task(3.00, "TaskUnfreeze", victim + TASKID_UNFREEZE_PLAYER);
 
 		return HAM_SUPERCEDE;
 	}
