@@ -29,7 +29,9 @@ new bool:g_isTagged[MAX_PLAYERS + 1];
 
 new g_SyncHudTagStatus;
 new g_TaskEnt;
+
 new taggedPlayerName[33];
+new taggedPlayerId;
 
 new pcvar_agtag_glowamount;
 
@@ -70,8 +72,6 @@ public client_disconnected(id)
 {
 	if (g_isTagged[id])
 		ChooseRandomTaggedPlayer();
-
-	g_isTagged[id] = false;
 }
 
 public CmdSayHandler(id, level, cid)
@@ -84,10 +84,12 @@ public CmdSayHandler(id, level, cid)
 	if (args[0] != '/' && args[0] != '.' && args[0] != '!')
 		return PLUGIN_CONTINUE;
 
-	else if (equali(args[1], "randomtag") || equali(args[1], "tagrandom"))
+	else if (equali(args[1], "firsttag"))
 	{
 		if (is_user_admin(id))
-			ChooseRandomTaggedPlayer();
+			ChooseRandomTaggedPlayer(true);
+        else
+            client_print(id, print_chat, "[%s] Only admins may use that command.", PLUGIN_TAG);
 	}
 
 	else
@@ -96,13 +98,16 @@ public CmdSayHandler(id, level, cid)
 	return PLUGIN_HANDLED;
 }
 
-public ChooseRandomTaggedPlayer()
+ChooseRandomTaggedPlayer(bool:firstPlayer = false)
 {
 	new players[MAX_PLAYERS];
 	new count, randomplayer;
 
 	get_players(players, count, "ach");
 	randomplayer = players[random(count)];
+
+    if(!firstPlayer)
+        UntagPlayer(taggedPlayerId);
 
 	TagPlayer(randomplayer);
 }
@@ -113,6 +118,7 @@ public TagPlayer(player)
 	set_user_rendering(player, kRenderFxGlowShell, 255, 0, 0, kRenderNormal, get_pcvar_num(pcvar_agtag_glowamount));
 
 	GetColorlessName(player, taggedPlayerName, charsmax(taggedPlayerName));
+    taggedPlayerId = player;
 
 	client_print(player, print_chat, "[%s] You are tagged!", PLUGIN_TAG);
 	client_cmd(player, "spk \"sound/tagged\"");
@@ -149,8 +155,8 @@ UnfreezePlayer(id)
 
 
 
-// *******************  //
-//					  	//
+// *******************	//
+//						//
 //		Forwards		//
 //						//
 // *******************	//
@@ -175,8 +181,8 @@ public Fw_HamTakeDamagePlayer(victim, inflictor, aggressor, Float:damage, damage
 	return HAM_SUPERCEDE;
 }
 
-// *******************  //
-//					  	//
+// *******************	//
+//						//
 //	HUD management		//
 //						//
 // *******************	//
