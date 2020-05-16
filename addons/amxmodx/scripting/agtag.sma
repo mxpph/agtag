@@ -165,12 +165,11 @@ public Fw_FmPlayerPreThinkPost(id)
 
 public Fw_HamTakeDamagePlayer(victim, inflictor, aggressor, Float:damage, damagebits)
 {
-	if(g_isTagged[aggressor])
+    //    console_print(0, "damagebits: %d", damagebits);
+	if(g_isTagged[aggressor] && (damagebits & DMG_CLUB))
 	{
 		TagPlayer(victim);
 		UntagPlayer(aggressor);
-
-		return HAM_SUPERCEDE;
 	}
 
 	return HAM_SUPERCEDE;
