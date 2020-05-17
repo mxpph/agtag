@@ -79,7 +79,7 @@ public client_putinserver(id)
 public client_disconnected(id)
 {
 	if (g_isTagged[id])
-		ChooseRandomTaggedPlayer();
+		ChooseRandomTaggedPlayer(false, true);
 }
 
 // *******************	//
@@ -101,7 +101,7 @@ public CmdSayHandler(id, level, cid)
 	else if (equali(args[1], "firsttag"))
 	{
 		if (is_user_admin(id))
-			ChooseRandomTaggedPlayer(true);
+			ChooseRandomTaggedPlayer();
         else
             client_print(id, print_chat, "[%s] Only admins may use that command.", PLUGIN_TAG);
 	}
@@ -118,7 +118,7 @@ public CmdDropHandler(id)
 	return PLUGIN_HANDLED;
 }
 
-ChooseRandomTaggedPlayer(bool:firstPlayer = false)
+ChooseRandomTaggedPlayer(bool:firstPlayer = false, bool:punishPlayer = false)
 {
 	new players[MAX_PLAYERS];
 	new count, randomplayer;
@@ -128,7 +128,9 @@ ChooseRandomTaggedPlayer(bool:firstPlayer = false)
 
     if(!firstPlayer)
     {
-    	ExecuteHamB(Ham_AddPoints, taggedPlayerId, -2, true); // Punish for disconnecting while tagged
+    	if (punishPlayer)
+    		ExecuteHamB(Ham_AddPoints, taggedPlayerId, -2, true); // Punish for disconnecting while tagged
+
         UntagPlayer(taggedPlayerId);
     }
 
