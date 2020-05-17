@@ -34,6 +34,7 @@ new taggedPlayerName[33];
 new taggedPlayerId;
 
 new pcvar_agtag_glowamount;
+new pcvar_agtag_cooldowntime;
 
 public plugin_init()
 {
@@ -52,9 +53,12 @@ public plugin_init()
 	}
 
 	pcvar_agtag_glowamount = register_cvar("agtag_glowamount", "125");
+	pcvar_agtag_cooldowntime = register_cvar("pcvar_agtag_cooldowntime", "3.00");
 
 	register_clcmd("say",		"CmdSayHandler");
 	register_clcmd("say_team",	"CmdSayHandler");
+	register_clcmd("drop",		"CmdDropHandler");
+
 	register_forward(FM_PlayerPreThink, "Fw_FmPlayerPreThinkPost", 1);
 	register_forward(FM_Think, "Fw_FmThinkPre");
 	RegisterHam(Ham_TakeDamage, "player", "Fw_HamTakeDamagePlayer");
@@ -78,6 +82,12 @@ public client_disconnected(id)
 		ChooseRandomTaggedPlayer();
 }
 
+// *******************	//
+//						//
+//	Player Handling		//
+//						//
+// *******************	//
+
 public CmdSayHandler(id, level, cid)
 {
 	static args[64];
@@ -99,6 +109,12 @@ public CmdSayHandler(id, level, cid)
 	else
 		return PLUGIN_CONTINUE;
 
+	return PLUGIN_HANDLED;
+}
+
+public CmdDropHandler(id)
+{
+	client_print(id, print_chat, "[%s] Weapon dropping is disabled.", PLUGIN_TAG);
 	return PLUGIN_HANDLED;
 }
 
@@ -134,7 +150,7 @@ TagPlayer(player, bool:firstPlayer = false)
 	{
 		ExecuteHamB(Ham_AddPoints, player, -1, true);
 		FreezePlayer(player);
-		set_task(3.00, "TaskUnfreeze", player + TASKID_UNFREEZE_PLAYER);
+		set_task(get_pcvar_float(pcvar_agtag_cooldowntime), "TaskUnfreeze", player + TASKID_UNFREEZE_PLAYER);
 	}
 }
 
