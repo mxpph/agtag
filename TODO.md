@@ -6,5 +6,8 @@ AG Tag TODO:
 - [ ] Add stats for AG Tag e.g time spent tagged, number of times tagged
 	- [ ] Store stats with MySQL
 - [ ] Remove all weapons
-- [ ] Add point system
-- [ ] Choose tagged player automatically
+- [x] Add point system
+- [x] Choose tagged player automatically
+- [ ] Prevent dropping crowbar
+- [ ] Allow variable number of taggers (controlled by cvar)
+- [ ] Make cooldown time customizable (controlled by cvar)

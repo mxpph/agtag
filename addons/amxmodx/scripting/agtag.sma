@@ -11,9 +11,9 @@
 #pragma semicolon 1
 #pragma ctrlchar '\'
 
-#define MAX_PLAYERS					32
-#define HUD_UPDATE_TIME				0.05
-#define TASKID_UNFREEZE_PLAYER 		221309
+#define MAX_PLAYERS						32
+#define HUD_UPDATE_TIME					0.05
+#define TASKID_UNFREEZE_PLAYER 			221309
 
 #define get_bit(%1,%2) (%1 & (1 << (%2 - 1)))
 #define set_bit(%1,%2) (%1 |= (1 << (%2 - 1)))
@@ -21,7 +21,7 @@
 
 new const PLUGIN[] = "AG Tag";
 new const PLUGIN_TAG[] = "AG Tag";
-new const VERSION[] = "0.13";
+new const VERSION[] = "0.15";
 new const AUTHOR[] = "mxpph";
 
 new g_baIsFrozen;
@@ -39,6 +39,9 @@ public plugin_init()
 {
 	register_plugin(PLUGIN, VERSION, AUTHOR);
 
+	server_cmd("mp_teamplay 0");
+	server_exec();
+
 	new ag_gamemode[32];
 	get_cvar_string("sv_ag_gamemode", ag_gamemode, charsmax(ag_gamemode));
 	if (ag_gamemode[0] && !equal(ag_gamemode, "agtag"))
@@ -50,11 +53,12 @@ public plugin_init()
 
 	pcvar_agtag_glowamount = register_cvar("agtag_glowamount", "125");
 
-	RegisterHam(Ham_TakeDamage, "player", "Fw_HamTakeDamagePlayer");
 	register_clcmd("say",		"CmdSayHandler");
 	register_clcmd("say_team",	"CmdSayHandler");
 	register_forward(FM_PlayerPreThink, "Fw_FmPlayerPreThinkPost", 1);
 	register_forward(FM_Think, "Fw_FmThinkPre");
+	RegisterHam(Ham_TakeDamage, "player", "Fw_HamTakeDamagePlayer");
+	RegisterHam(Ham_Spawn, "player", "Fw_HamPlayerSpawnPost", 1);
 
 	g_SyncHudTagStatus = CreateHudSyncObj();
 
@@ -107,12 +111,15 @@ ChooseRandomTaggedPlayer(bool:firstPlayer = false)
 	randomplayer = players[random(count)];
 
     if(!firstPlayer)
+    {
+    	ExecuteHamB(Ham_AddPoints, taggedPlayerId, -2, true); // Punish for disconnecting while tagged
         UntagPlayer(taggedPlayerId);
+    }
 
-	TagPlayer(randomplayer);
+	TagPlayer(randomplayer, firstPlayer);
 }
 
-public TagPlayer(player)
+TagPlayer(player, bool:firstPlayer = false)
 {
 	g_isTagged[player] = true;
 	set_user_rendering(player, kRenderFxGlowShell, 255, 0, 0, kRenderNormal, get_pcvar_num(pcvar_agtag_glowamount));
@@ -123,8 +130,12 @@ public TagPlayer(player)
 	client_print(player, print_chat, "[%s] You are tagged!", PLUGIN_TAG);
 	client_cmd(player, "spk \"sound/tagged\"");
 
-	FreezePlayer(player);
-	set_task(3.00, "TaskUnfreeze", player + TASKID_UNFREEZE_PLAYER);
+	if(!firstPlayer)
+	{
+		ExecuteHamB(Ham_AddPoints, player, -1, true);
+		FreezePlayer(player);
+		set_task(3.00, "TaskUnfreeze", player + TASKID_UNFREEZE_PLAYER);
+	}
 }
 
 public UntagPlayer(player)
@@ -181,6 +192,22 @@ public Fw_HamTakeDamagePlayer(victim, inflictor, aggressor, Float:damage, damage
 	return HAM_SUPERCEDE;
 }
 
+public Fw_HamPlayerSpawnPost(id)
+{
+	if(is_user_connected(id))
+	{
+		strip_user_weapons(id);
+		give_item(id, "weapon_crowbar");
+	}
+	 // Check if there is a tagged player. If there is not, choose one.
+	 // Checking here is best because, if there are no players in the server,
+	 // then when one connects and spawns in, they are tagged.
+	if(!taggedPlayerName[0])
+	{
+		ChooseRandomTaggedPlayer(true);
+	}
+}
+
 // *******************	//
 //						//
 //	HUD management		//
@@ -195,6 +222,7 @@ public Fw_FmThinkPre(ent)
 		static Float:currGameTime;
 		currGameTime = get_gametime();
 		UpdateHud(currGameTime);
+
 		set_pev(ent, pev_nextthink, currGameTime + HUD_UPDATE_TIME);
 	}
 }
