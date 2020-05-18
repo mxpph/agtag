@@ -35,6 +35,8 @@ new taggedPlayerId;
 
 new pcvar_agtag_glowamount;
 new pcvar_agtag_cooldowntime;
+new pcvar_agtag_falldamage;
+new pcvar_agtag_hp;
 
 public plugin_init()
 {
@@ -53,7 +55,9 @@ public plugin_init()
 	}
 
 	pcvar_agtag_glowamount = register_cvar("agtag_glowamount", "125");
-	pcvar_agtag_cooldowntime = register_cvar("pcvar_agtag_cooldowntime", "3.00");
+	pcvar_agtag_cooldowntime = register_cvar("agtag_cooldowntime", "3.00");
+	pcvar_agtag_falldamage = register_cvar("agtag_falldamage", "0");
+	pcvar_agtag_hp = register_cvar("agtag_hp", "20");
 
 	register_clcmd("say",		"CmdSayHandler");
 	register_clcmd("say_team",	"CmdSayHandler");
@@ -201,13 +205,29 @@ public Fw_FmPlayerPreThinkPost(id)
 public Fw_HamTakeDamagePlayer(victim, inflictor, aggressor, Float:damage, damagebits)
 {
     //    console_print(0, "damagebits: %d", damagebits);
+	new bool:dmgOverride;
+
 	if(g_isTagged[aggressor] && (damagebits & DMG_CLUB))
 	{
 		TagPlayer(victim);
 		UntagPlayer(aggressor);
+		dmgOverride = true;
 	}
 
-	return HAM_SUPERCEDE;
+	if(!g_isTagged[aggressor] && g_isTagged[victim] && !(pev(victim, pev_flags) & FL_FROZEN) && (damagebits & DMG_CLUB))
+	{
+		ExecuteHamB(Ham_AddPoints, aggressor, 1, true);
+		client_cmd(aggressor, "spk fvox/bell");
+		dmgOverride = true;
+	}
+
+	if(!(damagebits & DMG_FALL) || get_pcvar_num(pcvar_agtag_falldamage))
+		dmgOverride = true;
+
+	if(dmgOverride)
+		return HAM_SUPERCEDE;
+	else
+		return HAM_HANDLED;
 }
 
 public Fw_HamPlayerSpawnPost(id)
@@ -216,6 +236,12 @@ public Fw_HamPlayerSpawnPost(id)
 	{
 		strip_user_weapons(id);
 		give_item(id, "weapon_crowbar");
+
+		new hp = get_pcvar_num(pcvar_agtag_hp);
+		if (hp > 0 && hp < 100 )
+			set_user_health(id, hp);
+		else
+			set_user_health(id, 100);
 	}
 	 // Check if there is a tagged player. If there is not, choose one.
 	 // Checking here is best because, if there are no players in the server,
