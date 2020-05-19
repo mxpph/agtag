@@ -21,7 +21,7 @@
 
 new const PLUGIN[] = "AG Tag";
 new const PLUGIN_TAG[] = "AG Tag";
-new const VERSION[] = "0.15";
+new const VERSION[] = "0.17";
 new const AUTHOR[] = "mxpph";
 
 new g_baIsFrozen;
