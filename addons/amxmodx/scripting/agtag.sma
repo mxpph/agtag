@@ -221,7 +221,7 @@ public Fw_HamTakeDamagePlayer(victim, inflictor, aggressor, Float:damage, damage
 		dmgOverride = true;
 	}
 
-	if(!(damagebits & DMG_FALL) || get_pcvar_num(pcvar_agtag_falldamage))
+	if(!(damagebits & DMG_FALL) || !(get_pcvar_num(pcvar_agtag_falldamage)))
 		dmgOverride = true;
 
 	if(dmgOverride)
