@@ -14,6 +14,7 @@
 #define MAX_PLAYERS						32
 #define HUD_UPDATE_TIME					0.05
 #define TASKID_UNFREEZE_PLAYER 			221309
+#define TASKID_REMOVE_WEAPONS			626051
 
 #define get_bit(%1,%2) (%1 & (1 << (%2 - 1)))
 #define set_bit(%1,%2) (%1 |= (1 << (%2 - 1)))
@@ -23,6 +24,39 @@ new const PLUGIN[] = "AG Tag";
 new const PLUGIN_TAG[] = "AG Tag";
 new const VERSION[] = "0.17";
 new const AUTHOR[] = "mxpph";
+
+new const g_ItemNames[][] =
+{
+	"weapon_357",
+	"weapon_9mmAR",
+	"weapon_9mmhandgun",
+	"weapon_crossbow",
+	"weapon_crowbar",
+	"weapon_egon",
+	"weapon_gauss",
+	"weapon_handgrenade",
+	"weapon_hornetgun",
+	"weapon_rpg",
+	"weapon_satchel",
+	"weapon_shotgun",
+	"weapon_snark",
+	"weapon_tripmine",
+	"ammo_357",
+	"ammo_9mmAR",
+	"ammo_9mmbox",
+	"ammo_9mmclip",
+	"ammo_ARgrenades",
+	"ammo_buckshot",
+	"ammo_crossbow",
+	"ammo_gaussclip",
+	"ammo_rpgclip",
+	"item_battery",
+	"item_healthkit",
+	"item_longjump",
+	"item_suit",
+	"func_healthcharger",
+	"func_recharge"
+};
 
 new g_baIsFrozen;
 new bool:g_isTagged[MAX_PLAYERS + 1];
@@ -73,6 +107,8 @@ public plugin_init()
 	g_TaskEnt = engfunc(EngFunc_CreateNamedEntity, engfunc(EngFunc_AllocString, "info_target"));
 	set_pev(g_TaskEnt, pev_classname, engfunc(EngFunc_AllocString, "timer_entity"));
 	set_pev(g_TaskEnt, pev_nextthink, get_gametime() + 1.01);
+
+	set_task(0.05, "RemoveWeapons", TASKID_REMOVE_WEAPONS);
 }
 
 public client_putinserver(id)
@@ -285,4 +321,29 @@ UpdateHud(Float:currGameTime)
 
 		ShowSyncHudMsg(id, g_SyncHudTagStatus, "Tagged player: %s", taggedPlayerName);
 	}
+}
+
+// *******************	//
+//						//
+//	Map management		//
+//						//
+// *******************	//
+
+public RemoveWeapons()
+{
+	new ent, i;
+
+	for(i = 0; i < sizeof(g_ItemNames); i++)
+	{
+		while((ent = find_ent_by_class(ent, g_ItemNames[i])) != 0)
+		{
+			if(is_valid_ent(ent))
+			{
+				set_pev(ent, pev_flags, FL_KILLME);
+				dllfunc(DLLFunc_Think, ent);
+			}
+		}
+	}
+
+	return PLUGIN_HANDLED;
 }
