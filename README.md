@@ -1,7 +1,7 @@
 # AG TAG
 
 An AMX Mod X plugin which introduces a "tag" gamemode (similar to Hide n' Seek), meant for AG servers.
-Meant for [AMX Mod X 1.8.3](https://www.amxmodx.org/snapshots.php) 
+Compiled on [AMX Mod X 1.9.0](http://www.amxmodx.org/amxxdrop/1.9/amxmodx-1.9.0-git5263-base-windows.zip) (Direct link)
 
 # Credits
 Created by mxpph.
