@@ -101,6 +101,7 @@ public plugin_init()
 	register_forward(FM_Think, "Fw_FmThinkPre");
 	RegisterHam(Ham_TakeDamage, "player", "Fw_HamTakeDamagePlayer");
 	RegisterHam(Ham_Spawn, "player", "Fw_HamPlayerSpawnPost", 1);
+	RegisterHam(Ham_Spawn, "weaponbox", "Fw_HamSpawnWeaponboxPost", 1);
 
 	g_SyncHudTagStatus = CreateHudSyncObj();
 
@@ -163,8 +164,8 @@ ChooseRandomTaggedPlayer(bool:firstPlayer = false, bool:punishPlayer = false)
 	new players[MAX_PLAYERS];
 	new count, randomplayer;
 
-	get_players(players, count, "ach");
-	randomplayer = players[random(count)];
+	get_players(players, count);
+	randomplayer = players[random(count)]; // FIXME: There is apparently an out of bounds error here. No idea why.
 
     if(!firstPlayer)
     {
@@ -286,6 +287,14 @@ public Fw_HamPlayerSpawnPost(id)
 	{
 		ChooseRandomTaggedPlayer(true);
 	}
+}
+
+public Fw_HamSpawnWeaponboxPost(weaponboxId)
+{
+	set_pev(weaponboxId, pev_flags, FL_KILLME);
+	dllfunc(DLLFunc_Think, weaponboxId);
+
+	return HAM_IGNORED;
 }
 
 // *******************	//
