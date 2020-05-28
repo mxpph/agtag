@@ -15,6 +15,7 @@
 #define HUD_UPDATE_TIME					0.05
 #define TASKID_UNFREEZE_PLAYER 			221309
 #define TASKID_REMOVE_WEAPONS			626051
+#define TASKID_FIRST_SPAWN				454651
 
 #define get_bit(%1,%2) (%1 & (1 << (%2 - 1)))
 #define set_bit(%1,%2) (%1 |= (1 << (%2 - 1)))
@@ -115,6 +116,7 @@ public plugin_init()
 public client_putinserver(id)
 {
 	g_isTagged[id] = false;
+	set_task(0.50, "FirstSpawn", TASKID_FIRST_SPAWN + id);
 }
 
 public client_disconnected(id)
@@ -223,6 +225,11 @@ UnfreezePlayer(id)
 	clr_bit(g_baIsFrozen, id);
 }
 
+public FirstSpawn(id)
+{
+	id -= TASKID_FIRST_SPAWN;
+	ExecuteHamB(Ham_Spawn, id);
+}
 
 
 // *******************	//
