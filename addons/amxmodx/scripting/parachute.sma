@@ -120,7 +120,7 @@ public client_PreThink(id)
 				}
 			}
 		}
-		else if (para_ent[id] > 0) {
+	else if (para_ent[id] > 0) {
 			remove_entity(para_ent[id])
 			set_user_gravity(id, 1.0)
 			para_ent[id] = 0
