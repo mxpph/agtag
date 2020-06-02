@@ -110,7 +110,7 @@ public plugin_init()
 	set_pev(g_TaskEnt, pev_classname, engfunc(EngFunc_AllocString, "timer_entity"));
 	set_pev(g_TaskEnt, pev_nextthink, get_gametime() + 1.01);
 
-	set_task(0.05, "RemoveWeapons", TASKID_REMOVE_WEAPONS);
+	set_task(0.01, "RemoveWeapons", TASKID_REMOVE_WEAPONS);
 }
 
 public client_putinserver(id)

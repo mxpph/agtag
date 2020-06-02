@@ -70,7 +70,7 @@ public client_PreThink(id)
 		return
 	}
 
-	if (button & IN_USE) {
+	if (button & IN_ATTACK2) {
 
 		new Float:velocity[3]
 		entity_get_vector(id, EV_VEC_velocity, velocity)
@@ -126,7 +126,7 @@ public client_PreThink(id)
 			para_ent[id] = 0
 		}
 	}
-	else if ((oldbutton & IN_USE) && para_ent[id] > 0 ) {
+	else if ((oldbutton & IN_ATTACK2) && para_ent[id] > 0 ) {
 		remove_entity(para_ent[id])
 		set_user_gravity(id, 1.0)
 		para_ent[id] = 0
