@@ -126,7 +126,7 @@ public client_PreThink(id)
 			para_ent[id] = 0
 		}
 	}
-		else if ((oldbutton & IN_USE) && para_ent[id] > 0 ) {
+	else if ((oldbutton & IN_USE) && para_ent[id] > 0 ) {
 		remove_entity(para_ent[id])
 		set_user_gravity(id, 1.0)
 		para_ent[id] = 0
