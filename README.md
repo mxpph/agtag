@@ -6,3 +6,7 @@ Compiled on [AMX Mod X 1.9.0](http://www.amxmodx.org/amxxdrop/1.9/amxmodx-1.9.0-
 # Credits
 Created by mxpph.
 A lot of code taken from [HL Kreedz](https://github.com/YaLTeR/hlkreedz). Thanks to naz, KORD_12.7, Lev, YaLTeR, and execut4ble.
+
+# Suggested plugins
+
+Parachute by jtp10181 (Reforged code by _Smiley)
